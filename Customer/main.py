@@ -7,6 +7,7 @@ import pprint
 import operator
 from itertools import islice
 from collections import Counter
+from datetime import date
 
 # Data Visualization
 import seaborn as sns
@@ -41,5 +42,32 @@ df.rename(columns = {'AcceptedCmp5':'Campaign5'}, inplace = True)
 df.rename(columns = {'AcceptedCmp1':'Campaign1'}, inplace = True)
 df.rename(columns = {'AcceptedCmp2':'Campaign2'}, inplace = True)
 
-print(df)
+#Clone the original dataframe
+df2 = df
+
+# Calculate Age of Customers
+for i in df2['Year_Birth']:
+    df2['Age'] = 2022 - df2['Year_Birth']
+
+#Age segment
+
+for item in df2['Age']:
+    df2['Age_Group'] = df2['Age'] - (df2['Age'] % 10)
+
+#Plot Age Group
+sns.set_theme(style="darkgrid")
+ax = sns.countplot(x="Age_Group", data=df2)
+ax.bar_label(ax.containers[0])
+ax.set_title('Age Group of the Customers')
+plt.show()
+
+# PLot Age group and Type of Food
+
+df_melted = pd.melt(df, id_vars=['Age_Group'], value_vars=['Meat', 'Fish', 'Sweet', 'Gold'])
+print(df_melted)
+sns.set_theme(style = 'whitegrid', palette = 'pastel')
+ax1 = sns.barplot(data = df_melted, x='Age_Group', y='value', hue='variable', ci=None)
+ax1.set_title('Product Type by Age Group')
+plt.show()
+
 
