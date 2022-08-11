@@ -1,4 +1,6 @@
 # Libraries
+#Display
+from sklearn.datasets import load_iris
 # Math
 import pandas as pd
 import numpy as np
@@ -47,12 +49,27 @@ df2 = df
 
 # Calculate Age of Customers
 for i in df2['Year_Birth']:
-    df2['Age'] = 2022 - df2['Year_Birth']
+    df2['Age'] = 2014 - df2['Year_Birth']
+
 
 #Age segment
 
-for item in df2['Age']:
-    df2['Age_Group'] = df2['Age'] - (df2['Age'] % 10)
+age_cond = [
+    (df2['Age'] < 20),
+    (df2['Age']>= 20) & (df2['Age'] <30),
+    (df2['Age']>= 30) & (df2['Age'] <40),
+    (df2['Age']>= 40) & (df2['Age'] <50),
+    (df2['Age']>= 50) & (df2['Age'] <60),
+    (df2['Age']>= 60) & (df2['Age'] <70),
+    (df2['Age']>= 70) & (df2['Age'] <80),
+    (df2['Age']>= 80) & (df2['Age'] <90),
+    (df2['Age']>= 90) & (df2['Age'] <100),
+    (df2['Age'] > 100)
+]
+
+age_values = ['Under_20', '20s', '30s', '40s', '50s', '60s', '70s', '80s', '90s', 'Over 100s']
+
+df2['Age_Group'] = np.select(age_cond, age_values)
 
 #Plot Age Group
 sns.set_theme(style="darkgrid")
@@ -63,11 +80,44 @@ plt.show()
 
 # PLot Age group and Type of Food
 
-df_melted = pd.melt(df, id_vars=['Age_Group'], value_vars=['Meat', 'Fish', 'Sweet', 'Gold'])
-print(df_melted)
+df_melted = pd.melt(df, id_vars=['Age_Group'], value_vars=['Meat', 'Fruit', 'Fish', 'Sweet', 'Gold'])
+
 sns.set_theme(style = 'whitegrid', palette = 'pastel')
 ax1 = sns.barplot(data = df_melted, x='Age_Group', y='value', hue='variable', ci=None)
 ax1.set_title('Product Type by Age Group')
 plt.show()
+
+#Vegetarians Only
+
+cond_veg = [(df2['Fruit'] != 0) & (df2['Meat'] == 0) & (df2['Fish'] == 0)]
+print(np.where(cond_veg))
+    #No vegetarian costomers
+
+#Mean of shopping and Age
+
+df_melted_shopping = pd.melt(df2, id_vars=['Age_Group'], value_vars=['Online', 'Catalog', 'Store'])
+print()
+print(df_melted_shopping)
+sns.set_theme(style = 'ticks', palette = 'pastel')
+ax2 = sns.barplot(data = df_melted_shopping, x='Age_Group', y='value', hue='variable', ci=None)
+ax2.set_title('Mean of Shopping by Age Group')
+plt.show()
+
+#Sweets Consumption and Dependables
+
+dependables = [
+    (df2['Kidhome'] != 0) | (df2['Teenhome'] !=0),
+    (df2['Kidhome'] == 0) & (df2['Teenhome'] == 0)
+]
+
+dependable_values = ['Dependables', 'No Dependables']
+df2['Dependables'] = np.select(dependables, dependable_values)
+
+sns.set_theme(style = 'darkgrid', palette = 'husl')
+ax3 = sns.barplot(data = df2, x='Dependables', y='Sweet')
+ax3.set_title('Sweet Consumption in Customers with or without Dependables')
+plt.show()
+
+
 
 
